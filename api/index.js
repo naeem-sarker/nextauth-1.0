@@ -1,9 +1,11 @@
 import express from "express";
 import jwt from "jsonwebtoken"
+import morgan from "morgan";
 
 const app = express();
 
 app.use(express.json())
+app.use(morgan("tiny"))
 
 const user = {
     id: 1234,
@@ -33,7 +35,7 @@ const verifyToken = async (req, res, next) => {
 
 app.post("/login", async (req, res) => {
     const { email, password } = req.body;
-
+    console.log(req.body)
     if (user.email !== email || user.password !== password) {
         return res.status(400).json({ message: "Failed to login" })
     }
@@ -56,17 +58,33 @@ app.post("/refresh", async (req, res) => {
     const { refreshToken } = req.body;
 
     const decoded = jwt.verify(refreshToken, "JWT_SECRET")
-    let i = 1;
-    console.log("refresh", i++)
 
     const accessToken = jwt.sign({ id: user.id, email: user.email }, "JWT_SECRET", { expiresIn: "2m" });
+    const newRefreshToken = jwt.sign({ id: user.id, email: user.email }, "JWT_SECRET", { expiresIn: "5m" });
 
-    res.json({ accessToken });
+    res.json({ accessToken, refreshToken: newRefreshToken });
 });
 
+const users = [
+    {
+        id: 1,
+        name: "User 1",
+        emai: "1@gmail.com"
+    },
+    {
+        id: 2,
+        name: "User 1",
+        emai: "1@gmail.com"
+    },
+    {
+        id: 3,
+        name: "User 1",
+        emai: "1@gmail.com"
+    }
+]
 
-app.get("/profile", verifyToken, (req, res) => {
-    res.status(200).json({ user })
+app.get("/users", verifyToken, (req, res) => {
+    res.status(200).json({ users })
 })
 
 app.listen(4000, () => {
