@@ -87,6 +87,10 @@ app.get("/users", verifyToken, (req, res) => {
     res.status(200).json({ users })
 })
 
+app.get("/health", (req, res) => {
+    res.status(200).json("Success")
+})
+
 app.listen(4000, () => {
     console.log("server is running")
 })
